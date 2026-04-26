@@ -19,11 +19,15 @@ export default function Navbar() {
             height={50}
           />
           <span className="font-medium text-[1.2rem] text-[#1a1a1a] uppercase tracking-tight whitespace-nowrap">
-            Bekke Research INC.
+            Pawnder Info
           </span>
         </Link>
         <div className="w-full max-w-[320px]">
-          <Suspense fallback={<div className="h-9 w-full bg-slate-100 animate-pulse rounded-md" />}>
+          <Suspense
+            fallback={
+              <div className="h-9 w-full bg-slate-100 animate-pulse rounded-md" />
+            }
+          >
             <PlayerSearch compact placeholder="Search..." />
           </Suspense>
         </div>

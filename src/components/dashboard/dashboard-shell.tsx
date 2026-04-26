@@ -120,7 +120,7 @@ export function DashboardShell() {
               <h4 className="text-xs font-bold uppercase mb-2">Pro Tip</h4>
               <p className="text-[11px] leading-relaxed">
                 Filter by <strong>ELO</strong> and <strong>ECO</strong> to
-                identify an opponent&apos;s specific opening weaknesses across
+                identify an player&apos;s specific opening weaknesses across
                 different time controls.
               </p>
             </div>

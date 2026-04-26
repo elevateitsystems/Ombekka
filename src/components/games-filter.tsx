@@ -127,7 +127,7 @@ export function GamesFilter() {
         {/* Player Research */}
         <div className="space-y-2">
           <label className="text-[11px] font-bold uppercase text-slate-400 px-1">
-            Opponent Player
+            Player
           </label>
           <Input
             placeholder="e.g. Carlsen, Magnus"
