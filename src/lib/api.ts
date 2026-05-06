@@ -69,7 +69,8 @@ const BACKEND_URL =
   typeof window !== "undefined"
     ? "/api/proxy"
     : process.env.NEXT_PUBLIC_BACKEND_URL ||
-      "https://ombekka-backend.onrender.com/api";
+      "https://ombekka-backend.onrender.com/api" ||
+      "http://localhost:3030/api";
 
 export interface GamesFilterParams {
   search?: string;
@@ -270,4 +271,59 @@ export function computeResultPercentile(
     else if (g.result === "1/2-1/2" || g.result === "½-½") draws++;
   }
   return (((wins + draws * 0.5) / games.length) * 100).toFixed(1);
+}
+
+// Authentication methods
+export async function login(credentials: any) {
+  const url = `${BACKEND_URL}/auth/login`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Login failed");
+  return json;
+}
+
+export async function register(formData: FormData) {
+  const url = `${BACKEND_URL}/auth/register`;
+  const res = await fetch(url, {
+    method: "POST",
+    body: formData, // FormData will set the correct multipart/form-data header
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Registration failed");
+  return json;
+}
+
+export async function getProfile(token: string) {
+  const url = `${BACKEND_URL}/auth/profile`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to fetch profile");
+  return json.data;
+}
+
+export async function logout(token: string) {
+  const url = `${BACKEND_URL}/auth/logout`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || "Logout failed");
+  }
+  return true;
 }
