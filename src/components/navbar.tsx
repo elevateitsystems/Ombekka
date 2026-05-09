@@ -41,20 +41,29 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           {user ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
+                <Link 
+                  href="/" 
+                  className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  href="/admin-panel" 
+                  className="text-sm font-bold text-slate-500 hover:text-[#0071bc] transition-colors"
+                >
+                  Admin Panel
+                </Link>
+              </div>
+
+              <div className="h-6 w-[1px] bg-slate-200 hidden sm:block" />
+
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
-                  {user.avatar ? (
-                    <Image
-                      src={user.avatar}
-                      alt={user.name}
-                      width={32}
-                      height={32}
-                      className="object-cover"
-                    />
-                  ) : (
-                    <UserIcon className="w-4 h-4 text-slate-400" />
-                  )}
+                  {user?
+                    <UserIcon className="w-4 h-4 text-slate-400" />:''
+                  }
                 </div>
                 <span className="text-sm font-semibold text-slate-700 hidden md:inline">
                   {user.name}
@@ -66,7 +75,7 @@ export default function Navbar() {
                 onClick={logout}
                 className="text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
               >
-                <LogOut className="w-4 h-4 mr-2" />
+                <LogOut className="w-4 h-4 mr-1" />
                 <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
@@ -79,14 +88,6 @@ export default function Navbar() {
                   className="font-bold text-slate-600"
                 >
                   Log In
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button
-                  size="sm"
-                  className="bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg px-4"
-                >
-                  Join
                 </Button>
               </Link>
             </div>

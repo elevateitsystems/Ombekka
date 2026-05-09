@@ -26,7 +26,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-2xl shadow-sm border border-slate-200 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="w-full max-w-md mx-auto p-8 bg-white rounded shadow-sm border border-slate-200 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Welcome Back</h1>
         <p className="text-slate-500 mt-2 text-sm">
@@ -91,18 +91,6 @@ export function LoginForm() {
           )}
         </Button>
       </form>
-
-      <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-        <p className="text-sm text-slate-500">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/register"
-            className="font-bold text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            Create an Account
-          </Link>
-        </p>
-      </div>
     </div>
   );
 }

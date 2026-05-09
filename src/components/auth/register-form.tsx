@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Loader2, Camera, User } from "lucide-react";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 export function RegisterForm() {
   const { register } = useAuth();
@@ -34,14 +35,22 @@ export function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
+    formData.append("username", `${firstName.toLowerCase()}_${lastName.toLowerCase()}`.replace(/\s+/g, ''));
     formData.append("email", email);
     formData.append("password", password);
     formData.append("confirmPassword", confirmPassword);
+    
     if (avatar) {
       formData.append("avatar", avatar);
     }
@@ -49,18 +58,18 @@ export function RegisterForm() {
     try {
       await register(formData);
     } catch (error) {
-      // Error is handled in useAuth
+      // Error is handled in useAuth via toast
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-white rounded-2xl shadow-sm border border-slate-200 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="w-full max-w-md mx-auto p-8 bg-white rounded shadow-sm border border-slate-200 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Create Account</h1>
         <p className="text-slate-500 mt-2 text-sm">
-          Join Ombekka to start your research journey
+          Join Pawnder Info to start your research journey
         </p>
       </div>
 
@@ -97,7 +106,8 @@ export function RegisterForm() {
           />
         </div>
 
-        <div className="space-y-2">
+<div className="flex gap-2">
+ <div className="space-y-2 flex-1">
           <label
             htmlFor="first_name"
             className="text-sm font-semibold text-slate-700 ml-1"
@@ -114,7 +124,7 @@ export function RegisterForm() {
             className="h-11 rounded-xl border-slate-200 focus:ring-blue-500 focus:border-blue-500 transition-all"
           />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1">
           <label
             htmlFor="last_name"
             className="text-sm font-semibold text-slate-700 ml-1"
@@ -131,6 +141,9 @@ export function RegisterForm() {
             className="h-11 rounded-xl border-slate-200 focus:ring-blue-500 focus:border-blue-500 transition-all"
           />
         </div>
+
+</div>
+       
         <div className="space-y-2">
           <label
             htmlFor="email"
@@ -198,7 +211,7 @@ export function RegisterForm() {
         </Button>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+      <div className="mt-6 pt-6 border-t border-slate-100 text-center">
         <p className="text-sm text-slate-500">
           Already have an account?{" "}
           <Link

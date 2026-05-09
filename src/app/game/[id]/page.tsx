@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GamePdfExport } from "@/components/game/game-pdf-export";
 
 interface GamePageProps {
   params: Promise<{ id: string }>;
@@ -64,7 +65,8 @@ export default async function GamePage({ params }: GamePageProps) {
             <ChevronLeft className="w-4 h-4" />
             Back to Research
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            <GamePdfExport game={game} />
             <Badge
               variant="outline"
               className="text-[10px] font-bold uppercase tracking-wider text-slate-400"
@@ -77,13 +79,18 @@ export default async function GamePage({ params }: GamePageProps) {
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
         {/* Header Section */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Forensic Game Analysis
-          </h1>
-          <p className="text-slate-500 text-sm">
-            Deep dive into the match performance and opening context.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Forensic Game Analysis
+            </h1>
+            <p className="text-slate-500 text-sm">
+              Deep dive into the match performance and opening context.
+            </p>
+          </div>
+          <div className="flex shrink-0">
+            <GamePdfExport game={game} variant="primary" />
+          </div>
         </div>
 
         {/* Player Comparison Card */}

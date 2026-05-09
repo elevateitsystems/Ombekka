@@ -287,11 +287,12 @@ export async function login(credentials: any) {
   return json;
 }
 
-export async function register(formData: FormData) {
+export async function register(userData: any) {
   const url = `${BACKEND_URL}/auth/register`;
   const res = await fetch(url, {
     method: "POST",
-    body: formData, // FormData will set the correct multipart/form-data header
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
   });
 
   const json = await res.json();
@@ -326,4 +327,99 @@ export async function logout(token: string) {
     throw new Error(json.message || "Logout failed");
   }
   return true;
+}
+
+// User CRUD operations
+export async function fetchUsers(token: string) {
+  const url = `${BACKEND_URL}/users`; // Assuming /users for listing
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to fetch users");
+  return json.data;
+}
+
+export async function createUser(token: string, userData: any) {
+  // We can use the same register logic but with admin token if required
+  return register(userData);
+}
+
+export async function updateUser(token: string, userId: string, userData: any) {
+  const url = `${BACKEND_URL}/users/${userId}`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(userData),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Update failed");
+  return json.data;
+}
+
+export async function deleteUser(token: string, userId: string) {
+  const url = `${BACKEND_URL}/users/${userId}`;
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || "Delete failed");
+  }
+  return true;
+}
+
+// EULA
+export async function fetchEula(token: string) {
+  const url = `${BACKEND_URL}/eula`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to fetch EULA");
+  
+  // Handle specific structure: json.data.data[0].eulaFileString
+  let eulaData = null;
+  
+  if (json.data && Array.isArray(json.data.data)) {
+    eulaData = json.data.data[0]?.eulaFileString;
+  } else if (Array.isArray(json.data)) {
+    eulaData = json.data[0]?.eulaFileString;
+  } else if (json.data?.eulaFileString) {
+    eulaData = json.data.eulaFileString;
+  } else if (json.eulaFileString) {
+    eulaData = json.eulaFileString;
+  }
+
+  return eulaData;
+}
+
+export async function uploadEula(token: string, base64Data: string) {
+  const url = `${BACKEND_URL}/eula`;
+  const res = await fetch(url, {
+    method: "POST", // Assuming POST for creation/update
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ eulaFileString: base64Data }),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Upload failed");
+  return json.data;
 }

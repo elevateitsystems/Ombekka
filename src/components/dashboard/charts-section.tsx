@@ -23,6 +23,8 @@ import {
   type GameData 
 } from "@/lib/api";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 interface ChartsSectionProps {
   games: GameData[];
   isLoading: boolean;
@@ -61,12 +63,12 @@ export function ChartsSection({ games, isLoading, onFilterChange }: ChartsSectio
   const COLORS = ["#10b981", "#f43f5e", "#64748b"]; // Wins (Green), Losses (Red), Draws (Slate)
   const RESULT_MAP: Record<string, string> = { "Wins": "1-0", "Losses": "0-1", "Draws": "1/2-1/2" };
 
-  if (!hasMounted) {
+  if (!hasMounted || isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="h-[300px] bg-white border border-slate-200 rounded-xl" />
-        <div className="h-[300px] bg-white border border-slate-200 rounded-xl" />
-        <div className="h-[350px] md:col-span-2 bg-white border border-slate-200 rounded-xl" />
+        <Skeleton className="h-[300px] rounded-xl" />
+        <Skeleton className="h-[300px] rounded-xl" />
+        <Skeleton className="h-[350px] md:col-span-2 rounded-xl" />
       </div>
     );
   }

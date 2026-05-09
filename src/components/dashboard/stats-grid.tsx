@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GameData } from "@/lib/api";
 import { Trophy, Users, Hash, TrendingUp, Activity, Target, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StatsGridProps {
   games: GameData[];
@@ -81,7 +82,7 @@ export function StatsGrid({ games, totalGames, isLoading, onFilterChange }: Stat
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="h-7 w-20 bg-slate-100 animate-pulse rounded" />
+              <Skeleton className="h-7 w-20" />
             ) : (
               <div className="text-2xl font-bold text-slate-900 tracking-tight">{stat.value}</div>
             )}

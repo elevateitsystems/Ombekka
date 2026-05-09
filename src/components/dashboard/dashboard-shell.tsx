@@ -4,17 +4,20 @@ import { Button } from "@/components/ui/button";
 import { useChessFilters } from "@/hooks/use-chess-filters";
 import { useGames } from "@/hooks/use-games";
 import { cn } from "@/lib/utils";
-import { Filter, RefreshCw } from "lucide-react";
+import { FileText, Filter, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { GamesFilter } from "../games-filter";
 import { ChartsSection } from "./charts-section";
 import { GamesTable } from "./games-table";
 import { StatsGrid } from "./stats-grid";
+import { PDFConsentModal } from "../pdf/pdf-consent-modal";
+import { HomeResultsPDF } from "../pdf/pdf-templates";
 
 export function DashboardShell() {
   const { filters, setFilter, clearFilters } = useChessFilters();
   const { games, pagination, isLoading, error } = useGames(filters);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   const hasActiveFilters = Object.values(filters).some(
     (v) =>
@@ -63,6 +66,17 @@ export function DashboardShell() {
               Updating analysis...
             </div>
           )}
+
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setIsPdfModalOpen(true)}
+            disabled={games.length === 0 || isLoading}
+            className="hidden md:flex items-center gap-2 bg-black hover:bg-black/80 text-white font-bold h-10 px-6 rounded-lg transition-all active:scale-95"
+          >
+            <FileText className="w-4 h-4" />
+            Download PDF
+          </Button>
         </div>
       </div>
 
@@ -159,6 +173,14 @@ export function DashboardShell() {
           </div>
         </div>
       </div>
+
+      <PDFConsentModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        title="Search Results Analysis Report"
+        fileName={`Pawnder Info_Search_Results_${new Date().toISOString().split('T')[0]}.pdf`}
+        pdfDocument={<HomeResultsPDF games={games} />}
+      />
     </div>
   );
 }

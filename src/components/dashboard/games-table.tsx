@@ -7,6 +7,7 @@ import { Eye, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { type GameData, type PaginationInfo } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface GamesTableProps {
   games: GameData[];
@@ -30,10 +31,10 @@ export function GamesTable({ games, pagination, onPageChange, onFilterChange, is
 
   if (isLoading && games.length === 0) {
     return (
-      <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
-        <div className="h-12 bg-slate-50 border-b animate-pulse" />
+      <div className="bg-white border rounded-xl overflow-hidden shadow-sm space-y-px">
+        <Skeleton className="h-12 w-full rounded-none" />
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-16 border-b animate-pulse" />
+          <Skeleton key={i} className="h-16 w-full rounded-none" />
         ))}
       </div>
     );
