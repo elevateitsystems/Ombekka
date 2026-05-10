@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("auth_token", result.data.token);
       setUser(result.data.user);
       toast.success("Logged in successfully");
-      router.push("/dashboard");
+      router.push("/admin-panel");
     } catch (error: any) {
       toast.error(error.message || "Login failed");
       throw error;
