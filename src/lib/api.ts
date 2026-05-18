@@ -65,12 +65,7 @@ export interface GamesApiResponse {
   data: GameData[];
 }
 
-const BACKEND_URL =
-  typeof window !== "undefined"
-    ? "/api/proxy"
-    : process.env.NEXT_PUBLIC_BACKEND_URL ||
-      "https://ombekka-backend.onrender.com/api" ||
-      "http://localhost:3030/api";
+const BACKEND_URL = process.env.BACKEND_URL;
 
 export interface GamesFilterParams {
   search?: string;
@@ -391,10 +386,10 @@ export async function fetchEula(token: string) {
 
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Failed to fetch EULA");
-  
+
   // Handle specific structure: json.data.data[0].eulaFileString
   let eulaData = null;
-  
+
   if (json.data && Array.isArray(json.data.data)) {
     eulaData = json.data.data[0]?.eulaFileString;
   } else if (Array.isArray(json.data)) {
@@ -422,4 +417,56 @@ export async function uploadEula(token: string, base64Data: string) {
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Upload failed");
   return json.data;
+}
+
+export interface CreateOrderResponse {
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    status: string;
+    links: {
+      href: string;
+      rel: string;
+      method: string;
+    }[];
+  };
+}
+
+export interface CaptureOrderResponse {
+  success: boolean;
+  message: string;
+  data: {
+    captureData: any;
+    paymentRecord: any;
+  };
+}
+
+export async function createPaypalOrder(): Promise<CreateOrderResponse> {
+  const url = `${BACKEND_URL}/payments/create-order`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to create order");
+  return json;
+}
+
+export async function capturePaypalOrder(
+  orderId: string,
+): Promise<CaptureOrderResponse> {
+  const url = `${BACKEND_URL}/payments/capture-order`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ orderId }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to capture payment");
+  return json;
 }

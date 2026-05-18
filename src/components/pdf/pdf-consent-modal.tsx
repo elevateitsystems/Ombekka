@@ -8,7 +8,8 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { fetchEula } from "@/lib/api";
+import { fetchEula, createPaypalOrder } from "@/lib/api";
+import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { CheckCircle2, Download, Loader2, ShieldAlert } from "lucide-react";
@@ -86,13 +87,38 @@ export function PDFConsentModal({
     onClose();
   };
 
-  const simulatePayment = () => {
-    setIsProcessingPayment(true);
-    // Fake delay for realistic feel
-    setTimeout(() => {
+  const handlePay = async () => {
+    try {
+      setIsProcessingPayment(true);
+      const res = await createPaypalOrder();
+      
+      if (res.success && res.data?.links) {
+        const approveLink = res.data.links.find((link: any) => link.rel === "approve");
+        if (approveLink) {
+          // Store PDF context in sessionStorage using orderId (token) as key
+          const gamesData = pdfDocument?.props?.games || [];
+          
+          sessionStorage.setItem(
+            `pdf_pending_${res.data.id}`,
+            JSON.stringify({
+              games: gamesData,
+              fileName: fileName,
+            })
+          );
+          
+          // Redirect user to PayPal Sandbox checkout
+          window.location.href = approveLink.href;
+        } else {
+          throw new Error("PayPal approve URL not found.");
+        }
+      } else {
+        throw new Error("Failed to create PayPal order.");
+      }
+    } catch (error: any) {
+      console.error("PayPal redirect error:", error);
+      toast.error(error.message || "Something went wrong during payment redirection.");
       setIsProcessingPayment(false);
-      setStep(3);
-    }, 1500);
+    }
   };
 
   return (
@@ -221,13 +247,13 @@ export function PDFConsentModal({
 
           {step === 2 && (
             <div className="space-y-6 text-center animate-in zoom-in-95 duration-500">
-              <div className="bg-slate-50 border border-slate-100 p-8 rounded-3xl flex flex-col items-center shadow-sm">
+              <div className="bg-slate-50 border border-slate-100 px-8 py-4 rounded-[5px] flex flex-col items-center shadow-sm">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
                   Service Fee
                 </span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-slate-900 text-5xl font-black tracking-tighter">
-                    $4.99
+                    $10.00
                   </span>
                   <span className="text-slate-400 text-xs font-bold uppercase tracking-widest ml-1">
                     USD
@@ -237,9 +263,9 @@ export function PDFConsentModal({
 
               <div className="grid grid-cols-1 gap-4">
                 <Button
-                  onClick={simulatePayment}
+                  onClick={handlePay}
                   disabled={isProcessingPayment}
-                  className="h-16 bg-[#ffc439] hover:bg-[#f2ba36] text-[#003087] font-black rounded-2xl flex items-center justify-center gap-4 transition-all active:scale-95 shadow-xl shadow-amber-500/20 border-b-4 border-amber-600/30 group"
+                  className="h-14 bg-[#ffc439] hover:bg-[#f2ba36] text-[#003087] font-black rounded-2xl flex items-center justify-center gap-4 transition-all active:scale-95 shadow-xl shadow-amber-500/20 border-b-4 border-amber-600/30 group"
                 >
                   {isProcessingPayment ? (
                     <div className="flex items-center gap-4">
@@ -258,7 +284,7 @@ export function PDFConsentModal({
                       </div>
                       <div className="h-8 w-px bg-[#003087]/10" />
                       <span className="text-sm uppercase tracking-widest">
-                        Checkout Now
+                        Pay Now
                       </span>
                     </>
                   )}

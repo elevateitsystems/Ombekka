@@ -88,9 +88,9 @@ export default async function GamePage({ params }: GamePageProps) {
               Deep dive into the match performance and opening context.
             </p>
           </div>
-          <div className="flex shrink-0">
+          {/* <div className="flex shrink-0">
             <GamePdfExport game={game} variant="primary" />
-          </div>
+          </div> */}
         </div>
 
         {/* Player Comparison Card */}

@@ -1,4 +1,4 @@
-import { aggregateEloTrend, aggregateResults, type GameData } from "@/lib/api";
+import { aggregateEloTrend, aggregateResults, aggregateEco, type GameData } from "@/lib/api";
 import {
   Circle,
   Document,
@@ -467,6 +467,59 @@ const Footer = () => (
   </View>
 );
 
+// Opening Repertoire PDF component
+const OpeningRepertoirePDF = ({ games }: { games: GameData[] }) => {
+  const ecoData = aggregateEco(games)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  if (ecoData.length === 0) return null;
+
+  const maxCount = Math.max(...ecoData.map((d) => d.count)) || 1;
+
+  return (
+    <View style={[styles.chartContainer, { width: "100%", height: "auto", marginBottom: 20, padding: 12 }]}>
+      <Text style={styles.chartTitle}>Opening Repertoire</Text>
+      <View style={{ gap: 8, paddingVertical: 4 }}>
+        {ecoData.map((item, idx) => {
+          const percentage = (item.count / maxCount) * 100;
+          return (
+            <View key={idx} style={{ flexDirection: "column", gap: 2 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                {/* ECO Code */}
+                <Text style={{ fontSize: 8.5, fontWeight: "bold", color: "#1e293b", width: 35 }}>
+                  {item.eco}
+                </Text>
+                {/* Bar Chart Row */}
+                <View style={{ flex: 1, height: 14, backgroundColor: "#f1f5f9", borderRadius: 4, position: "relative", justifyContent: "center" }}>
+                  <View
+                    style={{
+                      width: `${percentage}%`,
+                      height: "100%",
+                      backgroundColor: "#818cf8",
+                      borderRadius: 4,
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                    }}
+                  />
+                  <Text style={{ fontSize: 7.5, fontWeight: "bold", color: percentage > 15 ? "#ffffff" : "#475569", marginLeft: percentage > 15 ? 6 : percentage + 4, zIndex: 1 }}>
+                    {item.count} {item.count === 1 ? "game" : "games"}
+                  </Text>
+                </View>
+              </View>
+              {/* Full Opening Name */}
+              <Text style={{ fontSize: 7, color: "#64748b", marginLeft: 45 }}>
+                {item.ecoName}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
 // Home Page PDF Template
 export const HomeResultsPDF = ({ games }: { games: GameData[] }) => (
   <Document>
@@ -478,6 +531,8 @@ export const HomeResultsPDF = ({ games }: { games: GameData[] }) => (
         <PieChartPDF games={games} />
         <EloTrendPDF games={games} />
       </View>
+
+      <OpeningRepertoirePDF games={games} />
 
       <View style={styles.table}>
         {/* Header */}
