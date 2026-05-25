@@ -24,7 +24,9 @@ export default async function GamePage({ params }: GamePageProps) {
   let game;
 
   try {
+   
     game = await fetchGameById(id);
+     console.log('game',game)
   } catch (error) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">

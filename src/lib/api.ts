@@ -65,7 +65,18 @@ export interface GamesApiResponse {
   data: GameData[];
 }
 
-const BACKEND_URL = process.env.BACKEND_URL;
+// On the server (SSR), use the real backend URL from .env since relative URLs don't work.
+// On the client (browser), use /proxy-api which Next.js rewrites to the real backend.
+function getBackendUrl() {
+  if (typeof window === "undefined") {
+    // Server-side: use the real backend URL from .env file
+    return process.env.BACKEND_URL || "https://ombekka-backend-ev.onrender.com/api";
+  }
+  // Client-side: use the proxy path defined in next.config.ts
+  return process.env.NEXT_PUBLIC_PROXY_URL || "/proxy-api";
+}
+
+const BACKEND_URL = getBackendUrl();
 
 export interface GamesFilterParams {
   search?: string;

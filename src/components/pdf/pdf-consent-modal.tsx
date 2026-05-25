@@ -11,7 +11,12 @@ import {
 import { fetchEula, createPaypalOrder } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import dynamic from "next/dynamic";
+
+const PDFDownloadLink = dynamic(
+  () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+  { ssr: false }
+);
 import { CheckCircle2, Download, Loader2, ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 

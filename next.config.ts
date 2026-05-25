@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@react-pdf/renderer"],
   env: {
-    // Expose the proxy URL to the client instead of the real Render URL
-    BACKEND_URL: "/proxy-api",
+    // Expose the proxy URL to the client via a separate variable
+    // so server-side code can still use the real BACKEND_URL from .env
+    NEXT_PUBLIC_PROXY_URL: "/proxy-api",
   },
   async rewrites() {
     return [

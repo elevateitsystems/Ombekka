@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { capturePaypalOrder } from "@/lib/api";
-import { pdf } from "@react-pdf/renderer";
+
 import { HomeResultsPDF } from "@/components/pdf/pdf-templates";
 import { CheckCircle2, Download, Loader2, AlertCircle, Home } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -26,6 +26,7 @@ function PaymentSuccessContent() {
   const triggerPdfDownload = async (games: any[], name: string) => {
     try {
       setStatus("downloading");
+      const { pdf } = await import("@react-pdf/renderer");
       const doc = <HomeResultsPDF games={games} />;
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
@@ -96,6 +97,7 @@ function PaymentSuccessContent() {
   const handleDownloadAgain = async () => {
     const toastId = toast.loading("Generating report...");
     try {
+      const { pdf } = await import("@react-pdf/renderer");
       const doc = <HomeResultsPDF games={gamesData} />;
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
