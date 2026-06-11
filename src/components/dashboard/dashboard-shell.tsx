@@ -179,7 +179,7 @@ export function DashboardShell() {
         onClose={() => setIsPdfModalOpen(false)}
         title="Search Results Analysis Report"
         fileName={`Pawnder Info_Search_Results_${new Date().toISOString().split('T')[0]}.pdf`}
-        pdfDocument={<HomeResultsPDF games={games} />}
+        pdfDocument={<HomeResultsPDF games={games} targetPlayer={filters?.player || games[0]?.white?.name || "Target Player"} />}
       />
     </div>
   );

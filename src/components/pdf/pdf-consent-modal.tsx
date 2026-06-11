@@ -102,11 +102,13 @@ export function PDFConsentModal({
         if (approveLink) {
           // Store PDF context in sessionStorage using orderId (token) as key
           const gamesData = pdfDocument?.props?.games || [];
+          const targetPlayer = pdfDocument?.props?.targetPlayer || "Target Player";
           
           sessionStorage.setItem(
             `pdf_pending_${res.data.id}`,
             JSON.stringify({
               games: gamesData,
+              targetPlayer,
               fileName: fileName,
             })
           );

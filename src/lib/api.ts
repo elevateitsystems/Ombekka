@@ -210,6 +210,211 @@ export function aggregateEloTrend(games: GameData[]) {
   }));
 }
 
+export function aggregateTargetPlayerEloTrend(games: GameData[], targetPlayerName: string) {
+  const sorted = [...games]
+    .filter((g) => g.datePlayed)
+    .sort(
+      (a, b) =>
+        new Date(a.datePlayed!).getTime() - new Date(b.datePlayed!).getTime(),
+    );
+
+  // Take all or sample points to show trend
+  return sorted.map((g) => {
+    const isWhite = g.white.name === targetPlayerName;
+    return {
+      date: new Date(g.datePlayed!).toLocaleDateString("en-US", {
+        month: "short",
+        year: "2-digit",
+      }),
+      elo: isWhite ? g.whiteElo : g.blackElo,
+    };
+  });
+}
+
+export function aggregateResultsByColor(games: GameData[], targetPlayerName: string) {
+  const white = { Wins: 0, Losses: 0, Draws: 0, total: 0 };
+  const black = { Wins: 0, Losses: 0, Draws: 0, total: 0 };
+
+  games.forEach((g) => {
+    const isWhite = g.white.name === targetPlayerName;
+    if (isWhite) {
+      white.total++;
+      if (g.result === "1-0") white.Wins++;
+      else if (g.result === "0-1") white.Losses++;
+      else white.Draws++;
+    } else {
+      black.total++;
+      if (g.result === "0-1") black.Wins++;
+      else if (g.result === "1-0") black.Losses++;
+      else black.Draws++;
+    }
+  });
+
+  return { white, black };
+}
+
+export function aggregateOpeningGroups(games: GameData[]) {
+  const groups = { Flank: 0, Indian: 0, Open: 0, SemiOpen: 0, Closed: 0, Unknown: 0 };
+  
+  games.forEach(g => {
+    const ecoCode = g.ecoCode.toUpperCase();
+    if (!ecoCode) groups.Unknown++;
+    else if (ecoCode.startsWith("A")) groups.Flank++;
+    else if (ecoCode.startsWith("B")) groups.SemiOpen++;
+    else if (ecoCode.startsWith("C")) groups.Open++;
+    else if (ecoCode.startsWith("D")) groups.Closed++;
+    else if (ecoCode.startsWith("E")) groups.Indian++;
+    else groups.Unknown++;
+  });
+  
+  return groups;
+}
+
+export function aggregateEventsSummary(games: GameData[], targetPlayerName: string) {
+  const map = new Map<number, { event: string, date: string | null, wins: number, losses: number, draws: number, total: number }>();
+  
+  games.forEach(g => {
+    const tId = g.tournamentId;
+    if (!map.has(tId)) {
+      map.set(tId, { event: g.tournament?.event || "Unknown", date: g.datePlayed, wins: 0, losses: 0, draws: 0, total: 0 });
+    }
+    const t = map.get(tId)!;
+    t.total++;
+    const isWhite = g.white.name === targetPlayerName;
+    if (isWhite) {
+      if (g.result === "1-0") t.wins++;
+      else if (g.result === "0-1") t.losses++;
+      else t.draws++;
+    } else {
+      if (g.result === "0-1") t.wins++;
+      else if (g.result === "1-0") t.losses++;
+      else t.draws++;
+    }
+  });
+  
+  const sorted = Array.from(map.values()).sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  });
+  
+  return sorted.slice(-10); // Last 10 events
+}
+
+export function aggregateCountryWinRates(games: GameData[], targetPlayerName: string) {
+  const map = new Map<string, { wins: number, draws: number, total: number }>();
+  
+  games.forEach(g => {
+    const fed = g.tournament?.federation || "Unknown";
+    if (!map.has(fed)) map.set(fed, { wins: 0, draws: 0, total: 0 });
+    
+    const c = map.get(fed)!;
+    c.total++;
+    const isWhite = g.white.name === targetPlayerName;
+    if (isWhite) {
+      if (g.result === "1-0") c.wins++;
+      else if (g.result === "1/2-1/2" || g.result === "½-½") c.draws++;
+    } else {
+      if (g.result === "0-1") c.wins++;
+      else if (g.result === "1/2-1/2" || g.result === "½-½") c.draws++;
+    }
+  });
+  
+  return Array.from(map.entries()).map(([country, stats]) => {
+    const score = stats.wins + stats.draws * 0.5;
+    const winRate = stats.total > 0 ? (score / stats.total) * 100 : 0;
+    return { country, winRate, total: stats.total };
+  }).sort((a, b) => b.total - a.total);
+}
+
+export function aggregateTopOpeningsByColor(games: GameData[], targetPlayerName: string) {
+  const whiteMap = new Map<string, { count: number, name: string, wins: number, losses: number, draws: number }>();
+  const blackMap = new Map<string, { count: number, name: string, wins: number, losses: number, draws: number }>();
+  
+  games.forEach(g => {
+    const isWhite = g.white.name === targetPlayerName;
+    const map = isWhite ? whiteMap : blackMap;
+    const code = g.ecoCode;
+    
+    if (!map.has(code)) map.set(code, { count: 0, name: g.eco.name, wins: 0, losses: 0, draws: 0 });
+    const stat = map.get(code)!;
+    stat.count++;
+    
+    if (isWhite) {
+      if (g.result === "1-0") stat.wins++;
+      else if (g.result === "0-1") stat.losses++;
+      else stat.draws++;
+    } else {
+      if (g.result === "0-1") stat.wins++;
+      else if (g.result === "1-0") stat.losses++;
+      else stat.draws++;
+    }
+  });
+  
+  return {
+    white: Array.from(whiteMap.entries()).map(([code, stat]) => ({ code, ...stat })).sort((a, b) => b.count - a.count).slice(0, 5),
+    black: Array.from(blackMap.entries()).map(([code, stat]) => ({ code, ...stat })).sort((a, b) => b.count - a.count).slice(0, 5)
+  };
+}
+
+export function aggregateWinRateForTop10Openings(games: GameData[], targetPlayerName: string) {
+  const map = new Map<string, { count: number, wins: number, losses: number, draws: number }>();
+  
+  games.forEach(g => {
+    const code = g.ecoCode;
+    if (!map.has(code)) map.set(code, { count: 0, wins: 0, losses: 0, draws: 0 });
+    
+    const stat = map.get(code)!;
+    stat.count++;
+    
+    const isWhite = g.white.name === targetPlayerName;
+    if (isWhite) {
+      if (g.result === "1-0") stat.wins++;
+      else if (g.result === "0-1") stat.losses++;
+      else stat.draws++;
+    } else {
+      if (g.result === "0-1") stat.wins++;
+      else if (g.result === "1-0") stat.losses++;
+      else stat.draws++;
+    }
+  });
+  
+  return Array.from(map.entries())
+    .map(([code, stat]) => ({ code, ...stat }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+}
+
+export function aggregateOpponentResults(games: GameData[], targetPlayerName: string) {
+  const map = new Map<string, { name: string, fideId: number, count: number, lastPlayed: string | null, wins: number, losses: number, draws: number }>();
+  
+  games.forEach(g => {
+    const isWhite = g.white.name === targetPlayerName;
+    const opponent = isWhite ? g.black : g.white;
+    const oppName = opponent.name;
+    
+    if (!map.has(oppName)) {
+      map.set(oppName, { name: oppName, fideId: opponent.fideId, count: 0, lastPlayed: null, wins: 0, losses: 0, draws: 0 });
+    }
+    
+    const stat = map.get(oppName)!;
+    stat.count++;
+    if (g.datePlayed && (!stat.lastPlayed || g.datePlayed > stat.lastPlayed)) stat.lastPlayed = g.datePlayed;
+    
+    if (isWhite) {
+      if (g.result === "1-0") stat.wins++;
+      else if (g.result === "0-1") stat.losses++;
+      else stat.draws++;
+    } else {
+      if (g.result === "0-1") stat.wins++;
+      else if (g.result === "1-0") stat.losses++;
+      else stat.draws++;
+    }
+  });
+  
+  return Array.from(map.values()).sort((a, b) => b.count - a.count);
+}
+
 export function aggregatePlayers(games: GameData[], targetId: number) {
   const map = new Map<
     string,
