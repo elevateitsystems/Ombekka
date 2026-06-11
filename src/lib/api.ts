@@ -70,7 +70,8 @@ export interface GamesApiResponse {
 function getBackendUrl() {
   if (typeof window === "undefined") {
     // Server-side: use the real backend URL from .env file
-    return process.env.BACKEND_URL || "https://ombekka-backend-ev.onrender.com/api";
+    // return process.env.BACKEND_URL || "https://ombekka-backend-ev.onrender.com/api";
+    return process.env.BACKEND_URL || "https://api.pawnder.info/api";
   }
   // Client-side: use the proxy path defined in next.config.ts
   return process.env.NEXT_PUBLIC_PROXY_URL || "/proxy-api";

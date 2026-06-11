@@ -128,14 +128,14 @@ const describeArc = (x: number, y: number, radius: number, startAngle: number, e
 
 const Watermark = () => (
   <View style={styles.watermarkContainer} fixed>
-    <Image src="/logo_2.png" style={styles.watermark} />
+    <Image src="/logo_2.webp" style={styles.watermark} />
   </View>
 );
 
 const Header = ({ title }: { title: string }) => (
   <View style={styles.header} fixed>
     <View style={styles.logoSection}>
-      <Image src="/logo_2.png" style={styles.logo} />
+      <Image src="/logo_2.webp" style={styles.logo} />
       <Text style={styles.siteName}>Pawnder Info</Text>
     </View>
     <Text style={styles.documentTitle}>{title}</Text>
