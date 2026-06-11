@@ -19,15 +19,16 @@ function PaymentSuccessContent() {
   const [status, setStatus] = useState<PaymentState>("verifying");
   const [errorMessage, setErrorMessage] = useState("");
   const [gamesData, setGamesData] = useState<any[]>([]);
+  const [targetPlayer, setTargetPlayer] = useState("Target Player");
   const [fileName, setFileName] = useState("");
   const captureStarted = useRef(false);
 
   // Programmatic PDF download
-  const triggerPdfDownload = async (games: any[], name: string) => {
+  const triggerPdfDownload = async (games: any[], name: string, player: string) => {
     try {
       setStatus("downloading");
       const { pdf } = await import("@react-pdf/renderer");
-      const doc = <HomeResultsPDF games={games} />;
+      const doc = <HomeResultsPDF games={games} targetPlayer={player} />;
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -70,9 +71,11 @@ function PaymentSuccessContent() {
 
     const context = JSON.parse(pendingSession);
     const games = context.games || [];
+    const player = context.targetPlayer || "Target Player";
     const name = context.fileName || "Forensic_Analysis_Report.pdf";
     
     setGamesData(games);
+    setTargetPlayer(player);
     setFileName(name);
 
     const performCapture = async () => {
@@ -80,7 +83,7 @@ function PaymentSuccessContent() {
         const res = await capturePaypalOrder(token);
         if (res.success) {
           // Trigger the automatic download
-          await triggerPdfDownload(games, name);
+          await triggerPdfDownload(games, name, player);
         } else {
           throw new Error("Unable to capture the PayPal transaction.");
         }
@@ -98,7 +101,7 @@ function PaymentSuccessContent() {
     const toastId = toast.loading("Generating report...");
     try {
       const { pdf } = await import("@react-pdf/renderer");
-      const doc = <HomeResultsPDF games={gamesData} />;
+      const doc = <HomeResultsPDF games={gamesData} targetPlayer={targetPlayer} />;
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");

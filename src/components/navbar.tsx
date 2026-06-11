@@ -18,13 +18,13 @@ export default function Navbar() {
           className="flex items-center gap-2 no-underline shrink-0"
         >
           <Image
-            src="/logo_2.png"
-            className="w-10 h-auto"
+            src="/logo_2.webp"
+            className="w-7 h-auto"
             alt="Logo"
-            width={50}
-            height={50}
+            width={100}
+            height={10}
           />
-          <span className="font-bold text-[1.2rem] text-slate-900 uppercase tracking-tight whitespace-nowrap hidden sm:inline">
+          <span className="mt-0.5 font-bold text-[1.2rem] text-slate-900 uppercase tracking-tight whitespace-nowrap hidden sm:inline">
             Pawnder Info
           </span>
         </Link>
