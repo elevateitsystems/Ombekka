@@ -1,20 +1,15 @@
+// components/admin/admin-panel-shell.tsx
 "use client";
 
-import { cn } from "@/lib/utils";
-import { ShieldCheck, UserCog } from "lucide-react";
-import { useState } from "react";
-import { EulaViewer } from "../dashboard/eula-viewer";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { AdminSidebar } from "./admin-sidebar";
 
-import { Skeleton } from "@/components/ui/skeleton";
-
-export function AdminPanelShell() {
+export function AdminPanelShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"eula" | "users">("eula");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -24,12 +19,16 @@ export function AdminPanelShell() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-[250px]" />
-          <Skeleton className="h-4 w-[350px]" />
+      <div className="flex h-screen bg-slate-50">
+        <div className="w-64 p-4">
+          <Skeleton className="h-full w-full rounded-2xl" />
         </div>
-        <Skeleton className="w-full h-[600px] rounded-2xl" />
+        <div className="flex-1 p-8">
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-[250px]" />
+            <Skeleton className="h-[600px] w-full rounded-2xl" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -37,9 +36,11 @@ export function AdminPanelShell() {
   if (!user) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500">
-
-        <EulaViewer />
+    <div className="flex h-screen bg-slate-50/30 overflow-hidden">
+      <AdminSidebar />
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
     </div>
   );
 }

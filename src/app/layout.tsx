@@ -1,7 +1,7 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "react-hot-toast";
 
@@ -34,11 +34,7 @@ export default function RootLayout({
       <body className="bg-[#f7f8fa] min-h-screen">
         <AuthProvider>
           <Toaster position="top-center" />
-          <main className="print:hidden">
-            {/* Top Header */}
-            <Navbar />
-            <div className="min-h-full ">{children}</div>
-          </main>
+          {children}
         </AuthProvider>
       </body>
     </html>

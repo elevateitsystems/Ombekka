@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("auth_token", result.data.token);
       setUser(result.data.user);
       toast.success("Logged in successfully");
-      router.push("/admin-panel");
+      router.push("/admin/eula");
     } catch (error: any) {
       toast.error(error.message || "Login failed");
       throw error;
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("auth_token", result.data.token);
       setUser(result.data.user);
       toast.success("Account created successfully");
-      router.push("/admin-panel"); // Redirect to dashboard after login/register
+      router.push("/admin/eula"); // Redirect to dashboard after login/register
     } catch (error: any) {
       toast.error(error.message || "Action failed");
       throw error;

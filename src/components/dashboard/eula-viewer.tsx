@@ -1,3 +1,5 @@
+'use client'
+// copmonents/deshboard/elua-viewer
 import React, { useState, useEffect, useRef } from "react";
 import { fetchEula, uploadEula } from "@/lib/api";
 import { Button } from "@/components/ui/button";
