@@ -1,3 +1,4 @@
+// @lib/api.ts
 export interface PlayerInfo {
   fideId: number;
   name: string;
@@ -72,6 +73,7 @@ function getBackendUrl() {
     // Server-side: use the real backend URL from .env file
     // return process.env.BACKEND_URL || "https://ombekka-backend-ev.onrender.com/api";
     return process.env.BACKEND_URL || "https://api.pawnder.info/api";
+    // return process.env.BACKEND_URL || "https://192.168.0.181:3030/api";
   }
   // Client-side: use the proxy path defined in next.config.ts
   return process.env.NEXT_PUBLIC_PROXY_URL || "/proxy-api";
@@ -685,5 +687,79 @@ export async function capturePaypalOrder(
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Failed to capture payment");
+  return json;
+}
+
+
+// File upload imports
+export async function importEcoFile(token: string, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const url = `${BACKEND_URL}/import/eco`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+  
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'ECO import failed');
+  return json;
+}
+
+export async function importPlayersFile(token: string, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const url = `${BACKEND_URL}/import/players`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+  
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Players import failed');
+  return json;
+}
+
+export async function importTournamentsFile(token: string, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const url = `${BACKEND_URL}/import/tournaments`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+  
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Tournaments import failed');
+  return json;
+}
+
+export async function importGamesFile(token: string, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const url = `${BACKEND_URL}/import/games`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+  
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Games import failed');
   return json;
 }
