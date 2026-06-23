@@ -37,21 +37,21 @@ interface Step {
 }
 
 const steps: Step[] = [
-  {
-    id: "eco",
-    title: "Import ECO Openings",
-    description: "Upload the ECO codes CSV file",
-    icon: <Database className="w-5 h-5" />,
-    importFn: importEcoFile,
-    fileLabel: "ECO CSV File",
-    requiredColumns: [
-      "eco",
-      "eco_name",
-      "eco_example",
-      "eco_type",
-      "eco_group",
-    ],
-  },
+  // {
+  //   id: "eco",
+  //   title: "Import ECO Openings",
+  //   description: "Upload the ECO codes CSV file",
+  //   icon: <Database className="w-5 h-5" />,
+  //   importFn: importEcoFile,
+  //   fileLabel: "ECO CSV File",
+  //   requiredColumns: [
+  //     "eco",
+  //     "eco_name",
+  //     "eco_example",
+  //     "eco_type",
+  //     "eco_group",
+  //   ],
+  // },
   {
     id: "players",
     title: "Import Players",
@@ -165,10 +165,11 @@ export function DataImportWizard() {
         ...prev,
         [step.id]: {
           success: false,
-          message: error.message || `${step.title} import failed`,
+          message: 'Import failed. Please use the required CSV format.',
         },
       }));
-      toast.error(error.message || "Import failed");
+      console.log({ error: error?.message });
+      toast.error("Import failed. Please use the required CSV format.");
     } finally {
       setUploading(false);
     }
