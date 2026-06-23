@@ -1,30 +1,28 @@
 // components/admin/data-import-wizard.tsx
 "use client";
 
-import React, { useState, useRef } from "react";
-import {
-  importEcoFile,
-  importPlayersFile,
-  importTournamentsFile,
-  importGamesFile,
-} from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
-  Upload,
-  FileSpreadsheet,
-  CheckCircle,
+  importGamesFile,
+  importPlayersFile,
+  importTournamentsFile
+} from "@/lib/api";
+import { cn } from "@/lib/utils";
+import {
   AlertCircle,
-  Loader2,
-  ArrowRight,
   ArrowLeft,
-  Database,
-  Users,
-  Trophy,
+  ArrowRight,
+  CheckCircle,
+  FileSpreadsheet,
   Gamepad2,
   Info,
+  Loader2,
+  Trophy,
+  Upload,
+  Users
 } from "lucide-react";
+import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { cn } from "@/lib/utils";
 
 interface Step {
   id: string;

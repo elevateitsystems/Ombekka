@@ -38,7 +38,7 @@ export default async function GamePage({ params }: GamePageProps) {
             Something went wrong
           </h1>
           <p className="text-slate-500 text-sm">
-            We couldn't retrieve the details for this game. It might have been
+            We couldn&apos;t retrieve the details for this game. It might have been
             moved or deleted.
           </p>
           <Link href="/">
