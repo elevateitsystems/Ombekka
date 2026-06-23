@@ -50,7 +50,7 @@ export default function Navbar() {
                   Dashboard
                 </Link>
                 <Link 
-                  href="/admin-panel" 
+                  href="/admin/eula" 
                   className="text-sm font-bold text-slate-500 hover:text-[#0071bc] transition-colors"
                 >
                   Admin Panel
