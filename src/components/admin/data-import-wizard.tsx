@@ -165,11 +165,11 @@ export function DataImportWizard() {
         ...prev,
         [step.id]: {
           success: false,
-          message: 'Import failed. Please use the required CSV format.',
+          message: "Import failed. Check CSV format or file size.",
         },
       }));
       console.log({ error: error?.message });
-      toast.error("Import failed. Please use the required CSV format.");
+      toast.error("Import failed. Check CSV format or file size.");
     } finally {
       setUploading(false);
     }
