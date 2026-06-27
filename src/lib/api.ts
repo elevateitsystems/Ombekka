@@ -76,6 +76,7 @@ function getBackendUrl() {
     // return process.env.BACKEND_URL || "https://192.168.0.181:3030/api";
   }
   // Client-side: use the proxy path defined in next.config.ts
+  // Client-side: use the proxy path defined in next.config.ts
   return process.env.NEXT_PUBLIC_PROXY_URL || "/proxy-api";
 }
 

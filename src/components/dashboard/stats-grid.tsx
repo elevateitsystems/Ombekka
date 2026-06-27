@@ -1,10 +1,10 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GameData } from "@/lib/api";
-import { Trophy, Users, Hash, TrendingUp, Activity, Target, Zap } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GameData } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { Activity, Hash, TrendingUp, Trophy } from "lucide-react";
 
 interface StatsGridProps {
   games: GameData[];
