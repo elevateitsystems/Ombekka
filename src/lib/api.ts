@@ -188,9 +188,20 @@ export function aggregateResults(games: GameData[]) {
     Draws: 0,
   };
 
+  const normalizeResult = (res?: string) => {
+    if (!res) return "";
+    // Normalize unicode fraction ½ to 1/2 and trim
+    const r = res.replace(/\u00BD/g, "1/2").trim();
+    if (/1\s*[-\/\s]?0/.test(r)) return "1-0";
+    if (/0\s*[-\/\s]?1/.test(r)) return "0-1";
+    if (r.includes("1/2") || r.includes("draw")) return "1/2-1/2";
+    return r;
+  };
+
   games.forEach((g) => {
-    if (g.result === "1-0") map["Wins"]++;
-    else if (g.result === "0-1") map["Losses"]++;
+    const r = normalizeResult(g.result);
+    if (r === "1-0") map["Wins"]++;
+    else if (r === "0-1") map["Losses"]++;
     else map["Draws"]++;
   });
 
@@ -198,15 +209,17 @@ export function aggregateResults(games: GameData[]) {
 }
 
 export function aggregateEloTrend(games: GameData[]) {
-  const sorted = [...games]
-    .filter((g) => g.datePlayed)
-    .sort(
-      (a, b) =>
-        new Date(a.datePlayed!).getTime() - new Date(b.datePlayed!).getTime(),
-    );
+  // Use datePlayed where available, otherwise fall back to tournament.startDate
+  const withDates = games
+    .map((g) => ({
+      ...g,
+      _date: g.datePlayed || g.tournament?.startDate || null,
+    }))
+    .filter((g) => g._date)
+    .sort((a, b) => new Date(a._date!).getTime() - new Date(b._date!).getTime());
 
-  return sorted.slice(-10).map((g) => ({
-    date: new Date(g.datePlayed!).toLocaleDateString("en-US", {
+  return withDates.slice(-10).map((g) => ({
+    date: new Date(g._date!).toLocaleDateString("en-US", {
       month: "short",
       year: "2-digit",
     }),
@@ -215,18 +228,15 @@ export function aggregateEloTrend(games: GameData[]) {
 }
 
 export function aggregateTargetPlayerEloTrend(games: GameData[], targetPlayerName: string) {
-  const sorted = [...games]
-    .filter((g) => g.datePlayed)
-    .sort(
-      (a, b) =>
-        new Date(a.datePlayed!).getTime() - new Date(b.datePlayed!).getTime(),
-    );
+  const withDates = [...games]
+    .map((g) => ({ ...g, _date: g.datePlayed || g.tournament?.startDate || null }))
+    .filter((g) => g._date)
+    .sort((a, b) => new Date(a._date!).getTime() - new Date(b._date!).getTime());
 
-  // Take all or sample points to show trend
-  return sorted.map((g) => {
+  return withDates.map((g) => {
     const isWhite = g.white.name === targetPlayerName;
     return {
-      date: new Date(g.datePlayed!).toLocaleDateString("en-US", {
+      date: new Date(g._date!).toLocaleDateString("en-US", {
         month: "short",
         year: "2-digit",
       }),
