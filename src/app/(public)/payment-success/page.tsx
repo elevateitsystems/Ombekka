@@ -3,13 +3,22 @@
 import { Suspense, useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { capturePaypalOrder } from "@/lib/api";
+import { verifyStripeCheckoutSession } from "@/lib/api";
+import type { GameData } from "@/lib/api";
 
 import { HomeResultsPDF } from "@/components/pdf/pdf-templates";
 import { CheckCircle2, Download, Loader2, AlertCircle, Home } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 type PaymentState = "verifying" | "downloading" | "success" | "error";
+type PendingPdfSession = {
+  games?: GameData[];
+  targetPlayer?: string;
+  fileName?: string;
+};
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : undefined;
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
@@ -18,13 +27,13 @@ function PaymentSuccessContent() {
   
   const [status, setStatus] = useState<PaymentState>("verifying");
   const [errorMessage, setErrorMessage] = useState("");
-  const [gamesData, setGamesData] = useState<any[]>([]);
+  const [gamesData, setGamesData] = useState<GameData[]>([]);
   const [targetPlayer, setTargetPlayer] = useState("Target Player");
   const [fileName, setFileName] = useState("");
   const captureStarted = useRef(false);
 
   // Programmatic PDF download
-  const triggerPdfDownload = async (games: any[], name: string, player: string) => {
+  const triggerPdfDownload = async (games: GameData[], name: string, player: string) => {
     try {
       setStatus("downloading");
       const { pdf } = await import("@react-pdf/renderer");
@@ -69,7 +78,7 @@ function PaymentSuccessContent() {
     // Immediately remove key to prevent reuse/refresh downloads
     sessionStorage.removeItem(`pdf_pending_${token}`);
 
-    const context = JSON.parse(pendingSession);
+    const context = JSON.parse(pendingSession) as PendingPdfSession;
     const games = context.games || [];
     const player = context.targetPlayer || "Target Player";
     const name = context.fileName || "Forensic_Analysis_Report.pdf";
@@ -80,17 +89,17 @@ function PaymentSuccessContent() {
 
     const performCapture = async () => {
       try {
-        const res = await capturePaypalOrder(token);
+        const res = await verifyStripeCheckoutSession(token);
         if (res.success) {
           // Trigger the automatic download
           await triggerPdfDownload(games, name, player);
         } else {
-          throw new Error("Unable to capture the PayPal transaction.");
+          throw new Error("Unable to verify the Stripe transaction.");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Payment capture error:", err);
         setStatus("error");
-        setErrorMessage(err.message || "Something went wrong while capturing your payment.");
+        setErrorMessage(getErrorMessage(err) || "Something went wrong while capturing your payment.");
       }
     };
 
@@ -134,7 +143,7 @@ function PaymentSuccessContent() {
               <div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">Verifying Payment</h2>
                 <p className="text-slate-400 text-sm mt-2 font-medium max-w-xs leading-relaxed">
-                  Securing your transaction with PayPal. Please do not close or reload this window.
+                  Securing your transaction with Stripe. Please do not close or reload this window.
                 </p>
               </div>
             </div>

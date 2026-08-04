@@ -8,30 +8,50 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { fetchEula, createPaypalOrder } from "@/lib/api";
+import { fetchEula, createStripeCheckoutSession } from "@/lib/api";
+import type { GameData } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
+import type { DocumentProps } from "@react-pdf/renderer";
+import type { ReactElement } from "react";
 
 const PDFDownloadLink = dynamic(
   () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
   { ssr: false }
 );
-import { CheckCircle2, Download, Loader2, ShieldAlert } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  CreditCard,
+  Download,
+  Loader2,
+  LockKeyhole,
+  ShieldAlert,
+} from "lucide-react";
 import { useEffect, useState } from "react";
+
+type PdfDocument = ReactElement<DocumentProps> & {
+  props: DocumentProps & {
+    games?: GameData[];
+    targetPlayer?: string;
+  };
+};
 
 interface PDFConsentModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  pdfDocument: any;
+  pdfDocument: PdfDocument;
   fileName: string;
 }
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : undefined;
 
 export function PDFConsentModal({
   isOpen,
   onClose,
-  title,
   pdfDocument,
   fileName,
 }: PDFConsentModalProps) {
@@ -95,12 +115,12 @@ export function PDFConsentModal({
   const handlePay = async () => {
     try {
       setIsProcessingPayment(true);
-      const res = await createPaypalOrder();
+      const res = await createStripeCheckoutSession();
       
       if (res.success && res.data?.links) {
-        const approveLink = res.data.links.find((link: any) => link.rel === "approve");
+        const approveLink = res.data.links.find((link) => link.rel === "approve");
         if (approveLink) {
-          // Store PDF context in sessionStorage using orderId (token) as key
+          // Store PDF context in sessionStorage using checkout session id as key
           const gamesData = pdfDocument?.props?.games || [];
           const targetPlayer = pdfDocument?.props?.targetPlayer || "Target Player";
           
@@ -113,17 +133,17 @@ export function PDFConsentModal({
             })
           );
           
-          // Redirect user to PayPal Sandbox checkout
+          // Redirect user to Stripe Checkout
           window.location.href = approveLink.href;
         } else {
-          throw new Error("PayPal approve URL not found.");
+          throw new Error("Stripe checkout URL not found.");
         }
       } else {
-        throw new Error("Failed to create PayPal order.");
+        throw new Error("Failed to create Stripe checkout session.");
       }
-    } catch (error: any) {
-      console.error("PayPal redirect error:", error);
-      toast.error(error.message || "Something went wrong during payment redirection.");
+    } catch (error: unknown) {
+      console.error("Stripe redirect error:", error);
+      toast.error(getErrorMessage(error) || "Something went wrong during payment redirection.");
       setIsProcessingPayment(false);
     }
   };
@@ -272,27 +292,29 @@ export function PDFConsentModal({
                 <Button
                   onClick={handlePay}
                   disabled={isProcessingPayment}
-                  className="h-14 bg-[#ffc439] hover:bg-[#f2ba36] text-[#003087] font-black rounded-2xl flex items-center justify-center gap-4 transition-all active:scale-95 shadow-xl shadow-amber-500/20 border-b-4 border-amber-600/30 group"
+                  className="relative h-14 w-full overflow-hidden rounded-lg border border-slate-900 bg-slate-950 px-4 text-white shadow-lg shadow-slate-950/15 transition-all hover:-translate-y-0.5 hover:bg-slate-900 hover:shadow-xl hover:shadow-slate-950/20 active:translate-y-0 disabled:translate-y-0 disabled:bg-slate-800 sm:h-16 sm:px-5"
                 >
                   {isProcessingPayment ? (
-                    <div className="flex items-center gap-4">
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                      <span className="uppercase tracking-[0.2em] text-[10px] font-black">
-                        Securing Transaction...
+                    <div className="flex w-full items-center justify-center gap-3">
+                      <Loader2 className="h-5 w-5 animate-spin text-white" />
+                      <span className="text-sm font-bold tracking-wide">
+                        Opening secure checkout...
                       </span>
                     </div>
                   ) : (
                     <>
-                      <div className="italic text-2xl flex items-center group-hover:scale-105 transition-transform">
-                        <span className="font-black">Pay</span>
-                        <span className="font-extrabold text-[#0070ba]">
-                          Pal
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white text-slate-950 shadow-sm sm:h-10 sm:w-10">
+                        <CreditCard className="h-5 w-5" />
+                      </div>
+                      <div className="flex min-w-0 flex-1 items-center justify-center px-3 text-center">
+                        <span className="whitespace-normal text-base font-black leading-tight tracking-tight sm:text-lg">
+                          Pay $10.00
                         </span>
                       </div>
-                      <div className="h-8 w-px bg-[#003087]/10" />
-                      <span className="text-sm uppercase tracking-widest">
-                        Pay Now
-                      </span>
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/10 text-white sm:h-10 sm:w-20 sm:gap-2">
+                        <LockKeyhole className="h-3.5 w-3.5" />
+                        <ArrowRight className="h-4 w-4" />
+                      </div>
                     </>
                   )}
                 </Button>

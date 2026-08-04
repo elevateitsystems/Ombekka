@@ -667,12 +667,12 @@ export interface CaptureOrderResponse {
   success: boolean;
   message: string;
   data: {
-    captureData: any;
-    paymentRecord: any;
+    captureData: unknown;
+    paymentRecord: unknown;
   };
 }
 
-export async function createPaypalOrder(): Promise<CreateOrderResponse> {
+export async function createStripeCheckoutSession(): Promise<CreateOrderResponse> {
   const url = `${BACKEND_URL}/payments/create-order`;
   const res = await fetch(url, {
     method: "POST",
@@ -685,7 +685,7 @@ export async function createPaypalOrder(): Promise<CreateOrderResponse> {
   return json;
 }
 
-export async function capturePaypalOrder(
+export async function verifyStripeCheckoutSession(
   orderId: string,
 ): Promise<CaptureOrderResponse> {
   const url = `${BACKEND_URL}/payments/capture-order`;
